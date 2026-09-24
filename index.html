@@ -1,0 +1,1019 @@
+<!doctype html>
+<html lang="kk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Күндік: әдеттер, істер, фокус және талдау">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<script>window.KUNDIK_STANDALONE=true;</script>
+<style>
+:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+body{margin:0;overscroll-behavior-y:none}
+[hidden]{display:none!important}
+img{max-width:100%}
+</style>
+<title>Күндік трекер</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Күндік">
+<meta name="theme-color" content="#EC5B3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Golos+Text:wght@400;500;600;700&display=swap">
+<style>
+:root{
+  --bg:#F2F3F7; --surface:#FFFFFF; --sunk:#E9EBF1; --ink:#11131F; --muted:#666B7D; --line:#E3E6EE;
+  --sun1:#F6B23C; --sun2:#EC5B3E; --accent:#E4572E; --good:#2E9A6A; --warn:#D9901A;
+  --shadow:0 1px 2px rgba(17,19,31,.04),0 8px 24px -12px rgba(17,19,31,.12);
+  --r:18px;
+  --display:"Unbounded","Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#0B0C12; --surface:#151722; --sunk:#1D2030; --ink:#ECEDF3; --muted:#8E93A6; --line:#242738;
+    --accent:#F07046; --good:#46B585; --warn:#E6A63A;
+    --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0B0C12; --surface:#151722; --sunk:#1D2030; --ink:#ECEDF3; --muted:#8E93A6; --line:#242738;
+  --accent:#F07046; --good:#46B585; --warn:#E6A63A;
+  --shadow:0 1px 2px rgba(0,0,0,.3),0 10px 30px -14px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box}
+html,body{background:var(--bg)}
+body{color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.45;-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;padding:0}
+button:focus-visible,textarea:focus-visible,input:focus-visible,select:focus-visible,[role=button]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+svg{display:block}
+.app{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:12px 112px}
+.view{display:flex;flex-direction:column;gap:26px}
+h2{font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:-.01em;margin:0}
+.sec{display:flex;flex-direction:column;gap:12px}
+.sec-head{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.meta{font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.link{font-size:13px;color:var(--accent);font-weight:600}
+.card{background:var(--surface);border-radius:var(--r);box-shadow:var(--shadow)}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--sunk);border:1px solid transparent;border-radius:12px;padding:12px 14px;width:100%}
+input:focus,textarea:focus,select:focus{border-color:var(--accent);outline:none}
+textarea{min-height:110px;resize:vertical;line-height:1.55}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--ink);color:var(--bg);border-radius:12px;padding:12px 16px;font-weight:600}
+.btn.accent{background:var(--accent);color:#fff}
+.btn.ghost{background:var(--sunk);color:var(--ink)}
+.btn.danger{background:transparent;color:var(--accent);border:1px solid color-mix(in oklab,var(--accent) 40%,transparent)}
+
+/* ---------- brand bar ---------- */
+.brand{display:flex;align-items:center;justify-content:space-between;padding-block:4px 14px}
+.logo{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:18px;letter-spacing:-.02em}
+.logo-mark{width:30px;height:30px;border-radius:9px;background:linear-gradient(140deg,var(--sun1),var(--sun2));display:grid;place-items:center;color:#fff}
+.sync{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.sync::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--muted);opacity:.6}
+.sync.ok::before{background:var(--good);opacity:1}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;border-radius:26px;padding:22px 20px 20px;color:#fff;
+  background:radial-gradient(120% 90% at 100% 0%,rgba(255,255,255,.28) 0,rgba(255,255,255,0) 55%),linear-gradient(150deg,var(--sun1) 0%,var(--sun2) 70%,#D2433A 100%);
+  box-shadow:0 18px 40px -20px rgba(236,91,62,.7)}
+.hero::after{content:"";position:absolute;right:-60px;bottom:-90px;width:230px;height:230px;border-radius:50%;border:1px solid rgba(255,255,255,.25);box-shadow:0 0 0 28px rgba(255,255,255,.06),0 0 0 60px rgba(255,255,255,.04);pointer-events:none}
+.hero-top{display:flex;gap:14px;align-items:flex-start;position:relative;z-index:1}
+.hero-txt{flex:1;min-width:0}
+.greet{font-size:14px;opacity:.9;font-weight:500}
+.date{font-family:var(--display);font-weight:700;font-size:27px;line-height:1.08;letter-spacing:-.02em;margin:6px 0 0;text-wrap:balance}
+.back{margin-top:10px;display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;background:rgba(255,255,255,.2);padding:6px 11px;border-radius:99px}
+.ring{position:relative;width:104px;height:104px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring .bar{transition:stroke-dashoffset .6s cubic-bezier(.2,.8,.2,1)}
+.ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-variant-numeric:tabular-nums}
+.ring-num b{font-family:var(--display);font-weight:700;font-size:26px;line-height:1;letter-spacing:-.03em}
+.ring-num span{font-size:11px;opacity:.85;margin-top:3px}
+.hero-stats{position:relative;z-index:1;display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}
+.hs{background:rgba(255,255,255,.16);border-radius:14px;padding:9px 10px;backdrop-filter:blur(6px)}
+.hs b{display:block;font-family:var(--display);font-weight:600;font-size:16px;font-variant-numeric:tabular-nums}
+.hs span{font-size:11.5px;opacity:.88}
+.quote{position:relative;z-index:1;margin:16px 0 0;font-size:13.5px;line-height:1.45;opacity:.95;max-width:34ch}
+.quote cite{display:block;font-style:normal;opacity:.75;font-size:12px;margin-top:2px}
+
+/* ---------- week ---------- */
+.week{display:flex;align-items:center;gap:2px}
+.week-days{flex:1;display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+.wd{display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 0 9px;border-radius:14px;font-variant-numeric:tabular-nums;transition:background .15s}
+.wd .w{font-size:11px;color:var(--muted);font-weight:500}
+.wd .n{font-family:var(--display);font-weight:600;font-size:16px}
+.wd .pb{width:22px;height:3px;border-radius:2px;background:var(--sunk);overflow:hidden}
+.wd .pb i{display:block;height:100%;background:var(--accent);border-radius:2px}
+.wd.today .n{color:var(--accent)}
+.wd.sel{background:var(--surface);box-shadow:var(--shadow)}
+.arrow{width:30px;height:44px;display:grid;place-items:center;color:var(--muted);border-radius:10px;flex:none}
+.arrow svg{width:18px;height:18px}
+
+/* ---------- habits ---------- */
+.habits{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.hb{--hc:#888;position:relative;display:flex;flex-direction:column;gap:12px;padding:14px;border-radius:var(--r);text-align:left;background:var(--surface);box-shadow:var(--shadow);transition:transform .12s,background .2s;min-width:0}
+.hb:active{transform:scale(.98)}
+.hb.done{background:color-mix(in oklab,var(--hc) 10%,var(--surface))}
+.hb-top{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ic{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:var(--hc);background:color-mix(in oklab,var(--hc) 14%,var(--surface));transition:background .2s,color .2s;flex:none}
+.ic svg{width:20px;height:20px}
+.hb.done .ic{background:var(--hc);color:#fff}
+.streak{display:inline-flex;align-items:center;gap:3px;font-size:12px;font-weight:600;color:var(--warn);font-variant-numeric:tabular-nums}
+.streak svg{width:13px;height:13px}
+.hb .nm{font-weight:600;font-size:14px;line-height:1.25;overflow-wrap:anywhere}
+.hb-bot{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-top:auto}
+.hb .val{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums;min-width:0}
+.hb .val b{color:var(--ink);font-weight:700;font-size:14px}
+.chk{width:26px;height:26px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;color:transparent;transition:all .2s;flex:none}
+.chk svg{width:14px;height:14px}
+.hb.done .chk{border-color:var(--hc);background:var(--hc);color:#fff}
+.pm{display:flex;gap:5px;flex:none}
+.pm button{width:30px;height:30px;border-radius:10px;background:var(--sunk);display:grid;place-items:center}
+.pm button svg{width:14px;height:14px}
+.pm .plus{background:var(--hc);color:#fff}
+.meter{height:5px;border-radius:3px;background:var(--sunk);overflow:hidden}
+.meter i{display:block;height:100%;background:var(--hc);border-radius:3px;transition:width .3s}
+.hb.add{align-items:center;justify-content:center;background:transparent;box-shadow:none;border:1.5px dashed var(--line);color:var(--muted);font-weight:600;font-size:13.5px;min-height:118px;gap:8px}
+.hb.add .ic{--hc:var(--muted)}
+
+/* ---------- tasks ---------- */
+.tasks{overflow:hidden}
+.task{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line)}
+.task:last-child{border-bottom:0}
+.task .cb{width:24px;height:24px;border-radius:8px;border:2px solid var(--line);flex:none;display:grid;place-items:center;color:transparent;transition:all .2s}
+.task .cb svg{width:14px;height:14px}
+.task.done .cb{background:var(--good);border-color:var(--good);color:#fff}
+.task .tx{flex:1;min-width:0;overflow-wrap:anywhere}
+.task.done .tx{text-decoration:line-through;color:var(--muted)}
+.task .star{color:var(--line);width:30px;height:30px;display:grid;place-items:center}
+.task .star svg{width:18px;height:18px}
+.task.pri .star{color:var(--warn)}
+.task.pri .star path{fill:currentColor}
+.task .x{color:var(--muted);width:30px;height:30px;display:grid;place-items:center}
+.task .x svg{width:16px;height:16px}
+.add-row{display:flex;gap:8px}
+.add-row input{flex:1;min-width:0}
+.add-row .btn{padding-inline:14px}
+.empty{padding:16px 14px;color:var(--muted);font-size:13.5px}
+
+/* ---------- mood ---------- */
+.moods{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.md{padding:12px 0 9px;border-radius:16px;background:var(--surface);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s}
+.md .e{font-size:26px;line-height:1;filter:grayscale(1);opacity:.55;transition:all .2s}
+.md .l{font-size:11px;color:var(--muted)}
+.md.on{background:color-mix(in oklab,var(--sun1) 22%,var(--surface));transform:translateY(-2px)}
+.md.on .e{filter:none;opacity:1}
+.md.on .l{color:var(--ink);font-weight:600}
+
+/* ---------- focus ---------- */
+.focus-card{padding:24px 18px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.seg{display:inline-flex;background:var(--sunk);border-radius:12px;padding:3px}
+.seg button{padding:8px 14px;border-radius:9px;font-size:13.5px;font-weight:600;color:var(--muted)}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--shadow)}
+.timer{position:relative;width:min(260px,72vw);aspect-ratio:1;max-width:100%}
+.timer svg{width:100%;height:100%;transform:rotate(-90deg)}
+.timer .bar{stroke:url(#sunGrad);transition:stroke-dashoffset .25s linear}
+.timer-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.timer-num b{font-family:var(--display);font-weight:600;font-size:52px;letter-spacing:-.04em;font-variant-numeric:tabular-nums;line-height:1}
+.timer-num span{font-size:13px;color:var(--muted)}
+.presets{display:flex;gap:8px}
+.presets button{padding:8px 14px;border-radius:99px;background:var(--sunk);font-weight:600;font-size:13px;font-variant-numeric:tabular-nums}
+.presets button.on{background:var(--ink);color:var(--bg)}
+.controls{display:flex;gap:12px;align-items:center}
+.play{width:68px;height:68px;border-radius:50%;background:linear-gradient(140deg,var(--sun1),var(--sun2));color:#fff;display:grid;place-items:center;box-shadow:0 12px 26px -12px rgba(236,91,62,.8)}
+.play svg{width:26px;height:26px}
+.round{width:48px;height:48px;border-radius:50%;background:var(--sunk);display:grid;place-items:center}
+.round svg{width:20px;height:20px}
+.focus-task{width:100%}
+.focus-task label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px}
+.sessions{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.sessions i{width:10px;height:10px;border-radius:50%;background:var(--sunk)}
+.sessions i.on{background:var(--accent)}
+
+/* ---------- stats ---------- */
+.kpis{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.kpi{padding:14px}
+.kpi span{font-size:12.5px;color:var(--muted)}
+.kpi b{display:block;font-family:var(--display);font-weight:600;font-size:26px;letter-spacing:-.03em;margin-top:4px;font-variant-numeric:tabular-nums}
+.kpi b small{font-size:14px;font-weight:500;color:var(--muted);margin-left:2px}
+.chart{padding:14px 12px 10px}
+.chart svg{width:100%;height:auto}
+.chart .axis{fill:var(--muted);font-size:9.5px;font-family:var(--body)}
+.chart .grid{stroke:var(--line);stroke-width:1}
+.rates{padding:6px 14px}
+.rate{display:grid;grid-template-columns:30px 1fr auto;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.rate:last-child{border-bottom:0}
+.rate .ic{width:30px;height:30px;border-radius:9px}
+.rate .ic svg{width:16px;height:16px}
+.rate .nm{font-size:13.5px;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.rate .bar{grid-column:2;height:5px;border-radius:3px;background:var(--sunk);overflow:hidden;margin-top:5px}
+.rate .bar i{display:block;height:100%;border-radius:3px;background:var(--hc)}
+.rate .pc{font-size:13px;font-weight:600;font-variant-numeric:tabular-nums}
+.cal{padding:14px}
+.cal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.cal-title{font-family:var(--display);font-weight:600;font-size:15px}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;font-variant-numeric:tabular-nums}
+.cal-grid .h{font-size:11px;color:var(--muted);text-align:center;padding-bottom:2px}
+.cd{aspect-ratio:1;max-width:100%;border-radius:10px;display:grid;place-items:center;font-size:12.5px;font-weight:600;background:var(--sunk);color:var(--ink)}
+.cd.l1{background:color-mix(in oklab,var(--accent) 20%,var(--surface))}
+.cd.l2{background:color-mix(in oklab,var(--accent) 48%,var(--surface))}
+.cd.l3{background:linear-gradient(140deg,var(--sun1),var(--sun2));color:#fff}
+.cd.today{box-shadow:inset 0 0 0 2px var(--ink)}
+.cd.pad{background:transparent}
+.legend{display:flex;align-items:center;gap:5px;margin-top:12px;font-size:11px;color:var(--muted)}
+.legend i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.moodline{padding:14px;display:grid;grid-template-columns:repeat(14,1fr);gap:2px;text-align:center}
+.moodline div{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.moodline .e{font-size:17px;line-height:1;height:18px}
+
+/* ---------- settings ---------- */
+.list{overflow:hidden}
+.li{display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--line)}
+.li:last-child{border-bottom:0}
+.li .ic{width:34px;height:34px;border-radius:10px}
+.li .ic svg{width:18px;height:18px}
+.li .txt{flex:1;min-width:0}
+.li .txt b{display:block;font-weight:600;font-size:14px;overflow-wrap:anywhere}
+.li .txt span{font-size:12px;color:var(--muted)}
+.mini{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.mini svg{width:17px;height:17px}
+.mini:disabled{opacity:.3}
+.field{padding:14px;display:flex;flex-direction:column;gap:8px}
+.field label{font-size:12.5px;color:var(--muted)}
+.row-btns{display:flex;gap:8px;flex-wrap:wrap}
+.row-btns .btn{flex:1;min-width:140px}
+.note{font-size:12.5px;color:var(--muted);line-height:1.5}
+.confirm{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:var(--r);border:1px solid color-mix(in oklab,var(--accent) 40%,transparent)}
+
+/* ---------- tab bar ---------- */
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:8px 12px calc(8px + env(safe-area-inset-bottom,0px));
+  background:color-mix(in oklab,var(--surface) 82%,transparent);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);border-top:1px solid var(--line)}
+.tabs{max-width:560px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted);border-radius:12px}
+.tab svg{width:22px;height:22px}
+.tab.on{color:var(--accent)}
+
+/* ---------- sheet ---------- */
+.scrim{position:fixed;inset:0;z-index:40;background:rgba(8,9,14,.45);display:flex;align-items:flex-end;justify-content:center;animation:fade .2s}
+.sheet{width:100%;max-width:560px;max-height:92%;overflow:auto;background:var(--surface);border-radius:24px 24px 0 0;padding:10px 16px calc(20px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:14px;animation:up .28s cubic-bezier(.2,.8,.2,1)}
+.grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 4px}
+.sheet h3{font-family:var(--display);font-weight:600;font-size:18px;margin:0}
+.sheet label{display:flex;flex-direction:column;gap:6px;font-size:12.5px;color:var(--muted)}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.swatches{display:flex;flex-wrap:wrap;gap:8px}
+.sw{width:32px;height:32px;border-radius:50%;background:var(--c)}
+.sw.on{box-shadow:0 0 0 3px var(--surface),0 0 0 5px var(--c)}
+.icons{display:grid;grid-template-columns:repeat(auto-fill,minmax(44px,1fr));gap:6px}
+.icons button{height:44px;border-radius:12px;background:var(--sunk);display:grid;place-items:center;color:var(--muted)}
+.icons button svg{width:20px;height:20px}
+.icons button.on{background:var(--hc);color:#fff}
+@keyframes up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:50;background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:13.5px;font-weight:500;box-shadow:var(--shadow);max-width:calc(100% - 32px);animation:fade .2s}
+#confetti{position:fixed;inset:0;pointer-events:none;z-index:60;width:100%;height:100%}
+
+@media (min-width:480px){.habits{grid-template-columns:repeat(3,1fr)}.kpis{grid-template-columns:repeat(4,1fr)}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+
+
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="sunGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F6B23C"/><stop offset="1" stop-color="#EC5B3E"/></linearGradient></defs></svg>
+
+<main class="app">
+  <div class="brand">
+    <div class="logo"><span class="logo-mark" id="logoMark"></span>Күндік</div>
+    <span class="sync" id="sync">Осы құрылғыда</span>
+  </div>
+
+  <!-- ======== TODAY ======== -->
+  <section class="view" id="vToday">
+    <div class="hero">
+      <div class="hero-top">
+        <div class="hero-txt">
+          <div class="greet" id="greet">Қайырлы күн</div>
+          <h1 class="date" id="date">—</h1>
+          <button class="back" id="backToday" hidden>Бүгінге оралу</button>
+        </div>
+        <div class="ring" aria-label="Күннің орындалуы">
+          <svg viewBox="0 0 100 100"><circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="9"/><circle class="bar" id="ringBar" cx="50" cy="50" r="42" fill="none" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-dasharray="263.9" stroke-dashoffset="263.9"/></svg>
+          <div class="ring-num"><b id="ringNum">0%</b><span>орындалды</span></div>
+        </div>
+      </div>
+      <div class="hero-stats">
+        <div class="hs"><b id="hsHabits">0/0</b><span>әдет</span></div>
+        <div class="hs"><b id="hsTasks">0/0</b><span>іс</span></div>
+        <div class="hs"><b id="hsFocus">0</b><span>мин фокус</span></div>
+      </div>
+      <p class="quote" id="quote"></p>
+    </div>
+
+    <nav class="week">
+      <button class="arrow" id="wkPrev" aria-label="Алдыңғы апта"></button>
+      <div class="week-days" id="week"></div>
+      <button class="arrow" id="wkNext" aria-label="Келесі апта"></button>
+    </nav>
+
+    <section class="sec">
+      <div class="sec-head"><h2>Әдеттер</h2><span class="meta" id="habitMeta"></span></div>
+      <div class="habits" id="habits"></div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-head"><h2>Бүгінгі істер</h2><span class="meta" id="taskMeta"></span></div>
+      <div class="card tasks" id="tasks"></div>
+      <form class="add-row" id="taskForm">
+        <input id="taskInput" maxlength="120" placeholder="Жаңа іс қосу…" autocomplete="off" aria-label="Жаңа іс">
+        <button class="btn accent" type="submit" aria-label="Қосу" id="taskAddBtn"></button>
+      </form>
+    </section>
+
+    <section class="sec">
+      <h2>Көңіл-күй</h2>
+      <div class="moods" id="moods"></div>
+    </section>
+
+    <section class="sec">
+      <h2>Күнделік</h2>
+      <textarea id="journal" placeholder="Бүгін не жақсы болды? Нені ескеру керек?"></textarea>
+    </section>
+  </section>
+
+  <!-- ======== FOCUS ======== -->
+  <section class="view" id="vFocus" hidden>
+    <div class="sec-head"><h2 style="font-size:22px">Фокус</h2><span class="meta" id="focusMeta"></span></div>
+    <div class="card focus-card">
+      <div class="seg" id="modeSeg"><button data-mode="focus" class="on">Жұмыс</button><button data-mode="break">Үзіліс</button></div>
+      <div class="timer">
+        <svg viewBox="0 0 200 200"><circle cx="100" cy="100" r="88" fill="none" stroke="var(--sunk)" stroke-width="10"/><circle class="bar" id="tBar" cx="100" cy="100" r="88" fill="none" stroke-width="10" stroke-linecap="round" stroke-dasharray="552.9" stroke-dashoffset="0"/></svg>
+        <div class="timer-num"><b id="tNum">25:00</b><span id="tLabel">Дайын</span></div>
+      </div>
+      <div class="presets" id="presets"></div>
+      <div class="controls">
+        <button class="round" id="tReset" aria-label="Қайта бастау"></button>
+        <button class="play" id="tPlay" aria-label="Бастау"></button>
+        <button class="round" id="tSkip" aria-label="Келесі режим"></button>
+      </div>
+      <div class="focus-task">
+        <label for="focusTask">Қазір немен айналысасыз?</label>
+        <select id="focusTask"></select>
+      </div>
+      <div class="sessions" id="sessions" aria-label="Бүгінгі сессиялар"></div>
+    </div>
+    <p class="note">Жұмыс сессиясы біткенде минуттар бүгінгі күнге автоматты түрде жазылады. Таймер бет жабылса да уақытты дұрыс есептейді.</p>
+  </section>
+
+  <!-- ======== STATS ======== -->
+  <section class="view" id="vStats" hidden>
+    <div class="sec-head"><h2 style="font-size:22px">Талдау</h2><span class="meta">соңғы 30 күн</span></div>
+    <div class="kpis" id="kpis"></div>
+    <section class="sec">
+      <div class="sec-head"><h2>Соңғы 14 күн</h2><span class="meta">орындалу, %</span></div>
+      <div class="card chart" id="chart"></div>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><h2>Әдеттердің тұрақтылығы</h2><span class="meta">белгіленген күндер</span></div>
+      <div class="card rates" id="rates"></div>
+    </section>
+    <section class="sec">
+      <h2>Көңіл-күй динамикасы</h2>
+      <div class="card moodline" id="moodline"></div>
+    </section>
+    <section class="sec">
+      <h2>Ай картасы</h2>
+      <div class="card cal">
+        <div class="cal-head">
+          <button class="arrow" id="mPrev" aria-label="Алдыңғы ай"></button>
+          <div class="cal-title" id="calTitle"></div>
+          <button class="arrow" id="mNext" aria-label="Келесі ай"></button>
+        </div>
+        <div class="cal-grid" id="cal"></div>
+        <div class="legend">0% <i style="background:var(--sunk)"></i><i style="background:color-mix(in oklab,var(--accent) 20%,var(--surface))"></i><i style="background:color-mix(in oklab,var(--accent) 48%,var(--surface))"></i><i style="background:linear-gradient(140deg,var(--sun1),var(--sun2))"></i> 75%+</div>
+      </div>
+    </section>
+  </section>
+
+  <!-- ======== SETTINGS ======== -->
+  <section class="view" id="vSettings" hidden>
+    <h2 style="font-size:22px">Баптаулар</h2>
+    <section class="sec">
+      <h2>Профиль</h2>
+      <div class="card field">
+        <label for="pName">Атыңыз (сәлемдесу үшін)</label>
+        <input id="pName" maxlength="30" placeholder="Мысалы: Нұрбол" autocomplete="given-name">
+      </div>
+    </section>
+    <section class="sec">
+      <div class="sec-head"><h2>Әдеттер</h2><button class="link" id="addHabit2">+ Жаңа әдет</button></div>
+      <div class="card list" id="habitList"></div>
+    </section>
+    <section class="sec">
+      <h2>Деректер</h2>
+      <div class="card field">
+        <div class="row-btns">
+          <button class="btn ghost" id="exportBtn">Сақтық көшірме алу</button>
+          <button class="btn ghost" id="importBtn">Көшірмеден қалпына келтіру</button>
+        </div>
+        <input type="file" id="importFile" accept=".json,application/json" hidden>
+        <p class="note" id="dataNote">Деректер claude.ai аккаунтыңызда жеке сақталады және тек сізге көрінеді. Бұлт қолжетімсіз болса, осы құрылғыда сақталады.</p>
+      </div>
+      <div id="resetWrap"><button class="btn danger" id="resetBtn" style="width:100%">Барлық деректерді өшіру</button></div>
+    </section>
+  </section>
+</main>
+
+<nav class="tabbar"><div class="tabs" id="tabs">
+  <button class="tab on" data-tab="vToday"><span data-i="sun"></span>Бүгін</button>
+  <button class="tab" data-tab="vFocus"><span data-i="timer"></span>Фокус</button>
+  <button class="tab" data-tab="vStats"><span data-i="chart"></span>Талдау</button>
+  <button class="tab" data-tab="vSettings"><span data-i="sliders"></span>Баптау</button>
+</div></nav>
+
+<div id="sheetHost"></div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+(function(){
+"use strict";
+/* ================= constants ================= */
+const MONTHS=["қаңтар","ақпан","наурыз","сәуір","мамыр","маусым","шілде","тамыз","қыркүйек","қазан","қараша","желтоқсан"];
+const WD_FULL=["Жексенбі","Дүйсенбі","Сейсенбі","Сәрсенбі","Бейсенбі","Жұма","Сенбі"];
+const WD_SHORT=["Дс","Сс","Ср","Бс","Жм","Сн","Жс"];
+const MOODS=[["😞","Нашар"],["😕","Орташа"],["🙂","Жақсы"],["😊","Керемет"],["🤩","Тамаша"]];
+const QUOTES=[
+  ["Еңбек етсең ерінбей, тояды қарның тіленбей.","Абай"],
+  ["Бүгінгі істі ертеңге қалдырма.","Мақал"],
+  ["Тамшы тамып көл болар.","Мақал"],
+  ["Ерінбеген етікші болар.","Мақал"],
+  ["Талапты ерге нұр жауар.","Мақал"],
+  ["Ынтымақ жоқ жерде ырыс жоқ.","Мақал"],
+  ["Бірлік болмай, тірлік болмас.","Мақал"]
+];
+const COLORS=["#3C7BE0","#F0A020","#2BA3C7","#E0527E","#7C5CD6","#4659B8","#F07A2E","#D85BA8","#1FA88B","#9A5BD0","#4F6A9E","#3FA35B"];
+const P={
+  drop:"M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z",
+  dumbbell:"M6.5 7v10M3.5 9.5v5M17.5 7v10M20.5 9.5v5M6.5 12h11",
+  steps:"M8 3c1.7 0 2.5 2 2.5 4.5S9.5 12 8 12 5.5 10 5.5 7.5 6.3 3 8 3zM6 15.5h4M16 8c1.7 0 2.5 2 2.5 4.5S17.5 17 16 17s-2.5-2-2.5-4.5S14.3 8 16 8zM14 20.5h4",
+  moon:"M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z",
+  sunrise:"M3 18h18M7 18a5 5 0 0 1 10 0M12 4v4M5.6 9.6 7 11M18.4 9.6 17 11M2 14h2M20 14h2",
+  pill:"M10.5 20.5a4.95 4.95 0 0 1-7-7l6-6a4.95 4.95 0 0 1 7 7l-6 6zM8.5 8.5l7 7",
+  shower:"M5 21V8a4 4 0 0 1 8 0M9.5 8h7M11 12.5v.5M15 12.5v.5M13 15.5v.5M17 15.5v.5M15 18.5v.5",
+  book:"M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2V5zM4 21a2 2 0 0 1 2-2h13",
+  list:"M10 6h10M10 12h10M10 18h10M4 6l1.2 1.2L7.5 5M4 12l1.2 1.2L7.5 11M4 18l1.2 1.2L7.5 17",
+  target:"M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zM12 11.2a.8.8 0 1 0 0 1.6.8.8 0 0 0 0-1.6z",
+  wallet:"M3 7a2 2 0 0 1 2-2h12v4M3 7v10a2 2 0 0 0 2 2h15V9H5a2 2 0 0 1-2-2zM16.5 14h.01",
+  heart:"M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.5-7 10-7 10z",
+  phone:"M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2z",
+  home:"M3 11l9-7 9 7M5 9.5V20h14V9.5M10 20v-6h4v6",
+  gift:"M4 11h16v9H4zM3 7h18v4H3zM12 7v13M12 7S10.5 3 8 3a2 2 0 0 0 0 4M12 7s1.5-4 4-4a2 2 0 0 1 0 4",
+  star:"M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z",
+  run:"M13 4.5a1.5 1.5 0 1 0 3 0 1.5 1.5 0 0 0-3 0M7 21l3-6 3 2v5M10 15l1-5-3 1-2 3M11 10l3 3h4",
+  leaf:"M5 19C5 10 11 5 20 4c0 9-5 15-14 15zM5 19l7-7",
+  brain:"M9 4a3 3 0 0 0-3 3 3 3 0 0 0-2 5 3 3 0 0 0 2 5 3 3 0 0 0 6 1V5a2 2 0 0 0-3-1zM15 4a3 3 0 0 1 3 3 3 3 0 0 1 2 5 3 3 0 0 1-2 5 3 3 0 0 1-6 1",
+  code:"M8 7l-5 5 5 5M16 7l5 5-5 5M13.5 5l-3 14",
+  lang:"M4 5h8M8 3v2M6 5c0 4 3 7 6 8M10 5c0 3-3 7-6 8M13 21l4-10 4 10M14.5 17.5h5",
+  noPhone:"M7 3h10v18H7zM3 3l18 18M11 18h2",
+  // UI
+  sun:"M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4",
+  timer:"M12 9v4l2.5 2M9 2h6M12 21a8 8 0 1 0 0-16 8 8 0 0 0 0 16z",
+  chart:"M4 20V11M10 20V5M16 20v-6M21 20H3",
+  sliders:"M4 7h9M17 7h3M4 17h3M11 17h9M15 5v4M9 15v4",
+  check:"M5 12.5l4.5 4.5L19 7.5",
+  plus:"M12 5v14M5 12h14",
+  minus:"M5 12h14",
+  x:"M6 6l12 12M18 6 6 18",
+  left:"M15 5l-7 7 7 7",
+  right:"M9 5l7 7-7 7",
+  up:"M6 15l6-6 6 6",
+  down:"M6 9l6 6 6-6",
+  edit:"M4 20h4L19 9l-4-4L4 16v4zM13.5 6.5l4 4",
+  play:"M8 5v14l11-7z",
+  pause:"M8 5v14M16 5v14",
+  reset:"M4 12a8 8 0 1 0 2.4-5.7M4 4v4h4",
+  skip:"M6 5l9 7-9 7zM18 5v14",
+  flame:"M12 3c1 3 4.5 5 4.5 9.5a4.5 4.5 0 0 1-9 0c0-2.2 1-3.5 2.2-4.6.2 2 1.1 3.1 2.3 3.1 0-3-1-5 0-8z"
+};
+const HABIT_ICONS=["drop","dumbbell","steps","run","moon","sunrise","pill","shower","book","list","target","wallet","heart","phone","home","gift","leaf","brain","code","lang","noPhone","star"];
+function ic(name,fill){return '<svg viewBox="0 0 24 24" fill="'+(fill?"currentColor":"none")+'" stroke="currentColor" stroke-width="'+(fill?0:1.8)+'" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="'+(P[name]||P.star)+'"/></svg>';}
+
+const DEFAULT_HABITS=[
+  ["water","Су ішу","drop",8,"стақан",1],["sport","Спорт","dumbbell",30,"мин",5],["steps","Қадам","steps",10000,"қадам",1000],
+  ["early","Ерте тұру","sunrise"],["sleep","23:00-де ұйықтау","moon"],["vitamin","Витамин ішу","pill"],["shower","Салқын душ","shower"],
+  ["book","Кітап оқу","book",20,"бет",5],["plan","Күнді жоспарлау","list"],["top3","Топ-3 маңызды іс","target"],
+  ["expense","Шығынды жазу","wallet"],["sadaqa","Садақа беру","gift"],["family","Жармен уақыт","heart"],
+  ["relatives","Туыстарға қоңырау","phone"],["home","Үй шаруасына көмек","home"]
+].map((h,i)=>({id:h[0],name:h[1],icon:h[2],goal:h[3]||0,unit:h[4]||"",step:h[5]||1,color:COLORS[i%COLORS.length]}));
+const ICON_FOR={water:"drop",sport:"dumbbell",steps:"steps",sleep:"moon",early:"sunrise",vitamin:"pill",shower:"shower",book:"book",plan:"list",top3:"target",expense:"wallet",family:"heart",relatives:"phone",home:"home",sadaqa:"gift"};
+
+/* ================= state ================= */
+const LS="kundik-v2",LS_OLD="kundik-tracker-v1",LS_UI="kundik-ui";
+const STANDALONE=window.KUNDIK_STANDALONE===true;
+function clone(o){return JSON.parse(JSON.stringify(o));}
+function migrateHabits(hs){
+  return (Array.isArray(hs)?hs:clone(DEFAULT_HABITS)).filter(h=>h&&h.id!=="tahajjud"&&!/намаз/i.test(h.name||""))
+    .map((h,i)=>({id:String(h.id),name:String(h.name||"Әдет"),icon:h.icon||ICON_FOR[h.id]||"star",goal:+h.goal||0,unit:h.unit||"",step:+h.step||1,color:h.color||COLORS[i%COLORS.length]}));
+}
+function migrateDay(d){
+  if(!d||typeof d!=="object")return null;
+  return {h:d.h&&typeof d.h==="object"?d.h:{},t:Array.isArray(d.t)?d.t.map(t=>({text:String(t.text||""),done:!!t.done,star:!!t.star})):[],m:typeof d.m==="number"?d.m:-1,j:d.j||"",f:+d.f||0,fs:+d.fs||0};
+}
+function migrate(s){
+  const out={v:2,profile:{name:(s&&s.profile&&s.profile.name)||""},habits:migrateHabits(s&&s.habits),days:{}};
+  if(s&&s.days)for(const k in s.days){const d=migrateDay(s.days[k]);if(d)out.days[k]=d;}
+  return out;
+}
+let state=migrate({habits:clone(DEFAULT_HABITS)});
+try{
+  const raw=localStorage.getItem(LS)||localStorage.getItem(LS_OLD);
+  if(raw)state=migrate(JSON.parse(raw));
+}catch(e){}
+
+const pad=n=>String(n).padStart(2,"0");
+const key=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+const parse=k=>{const[a,b,c]=k.split("-").map(Number);return new Date(a,b-1,c);};
+const todayKey=()=>key(new Date());
+const addDays=(k,n)=>{const d=parse(k);d.setDate(d.getDate()+n);return key(d);};
+let sel=todayKey(),calMonth=sel.slice(0,7),tab="vToday",lastPct=0;
+
+function day(k){return state.days[k]||{h:{},t:[],m:-1,j:"",f:0,fs:0};}
+function dayW(k){if(!state.days[k])state.days[k]=day(k);return state.days[k];}
+function isDone(h,d){const v=(d.h||{})[h.id]||0;return h.goal?v>=h.goal:!!v;}
+function hasData(d){return !!d&&(Object.values(d.h).some(v=>v>0)||d.t.length>0||d.m>=0||!!d.j||d.f>0);}
+function pct(k){
+  const d=state.days[k];if(!d)return 0;
+  let tot=0,got=0;
+  for(const h of state.habits){tot++;const v=d.h[h.id]||0;got+=h.goal?Math.min(v/h.goal,1):(v?1:0);}
+  for(const t of d.t){tot++;if(t.done)got++;}
+  return tot?Math.round(got/tot*100):0;
+}
+function streak(h,end){
+  let k=end;if(!isDone(h,day(k)))k=addDays(k,-1);
+  let n=0;while(n<999&&isDone(h,day(k))){n++;k=addDays(k,-1);}
+  return n;
+}
+
+/* ================= persistence ================= */
+let col=null,downloads=null;
+const dirty=new Set();let cfgDirty=false,timer=null,writing=false;
+function saveLocal(){try{localStorage.setItem(LS,JSON.stringify(state));}catch(e){}}
+function touch(k){saveLocal();if(k)dirty.add(k.slice(0,7));schedule();}
+function touchCfg(){saveLocal();cfgDirty=true;schedule();}
+function schedule(){if(!col)return;clearTimeout(timer);timer=setTimeout(flush,700);}
+function monthDoc(m){const days={};for(const k in state.days)if(k.startsWith(m))days[k]=state.days[k];return{days};}
+async function flush(){
+  if(!col||writing)return;writing=true;
+  try{
+    if(cfgDirty){cfgDirty=false;await col.doc("config").set({habits:state.habits,profile:state.profile});}
+    for(const m of [...dirty]){dirty.delete(m);await col.doc("m-"+m).set(monthDoc(m));}
+    setSync(true);
+  }catch(e){setSync(false,e&&e.code);}
+  writing=false;if(cfgDirty||dirty.size)schedule();
+}
+function setSync(ok,code){
+  const el=$("sync");el.className="sync"+(ok?" ok":"");
+  el.textContent=ok?"Синхрондалды":(code==="quota_exceeded"?"Бұлт толы":"Осы құрылғыда");
+}
+function applyRemote(docId,v){
+  if(!v)return false;
+  if(docId==="config"){
+    if(Array.isArray(v.habits))state.habits=migrateHabits(v.habits);
+    if(v.profile)state.profile={name:v.profile.name||""};
+    return true;
+  }
+  if(docId.startsWith("m-")&&v.days){for(const k in v.days){const d=migrateDay(v.days[k]);if(d)state.days[k]=d;}return true;}
+  return false;
+}
+async function connect(){
+  if(!window.claude||!claude.use)return;
+  claude.use("downloads").then(d=>{downloads=d;}).catch(()=>{});
+  try{
+    const [d,u]=await Promise.all([claude.use("db"),claude.use("user")]);
+    if(!d||!u)return;
+    const uid=await u.id();if(!uid)return;
+    const c=d.collection("data/users/"+uid);
+    const snap=await c.get();
+    const seen=new Set();
+    snap.docs.forEach(doc=>{seen.add(doc.id);applyRemote(doc.id,doc.data());});
+    col=c;
+    // config was saved by v1 (prayers era) or not at all: rewrite it in the new shape
+    if(!seen.has("config")||snap.docs.some(x=>x.id==="config"&&(x.data().habits||[]).some(h=>h.id==="tahajjud"||!h.icon)))cfgDirty=true;
+    new Set(Object.keys(state.days).map(k=>k.slice(0,7))).forEach(m=>{if(!seen.has("m-"+m))dirty.add(m);});
+    saveLocal();renderAll();setSync(true);
+    if(cfgDirty||dirty.size)flush();
+    c.onSnapshot(s=>{
+      let changed=false;
+      s.docChanges().forEach(ch=>{
+        const doc=ch.doc;if(doc.metadata.hasPendingWrites||ch.type==="removed")return;
+        if(doc.id==="config"&&cfgDirty)return;
+        if(doc.id.startsWith("m-")&&dirty.has(doc.id.slice(2)))return;
+        if(applyRemote(doc.id,doc.data()))changed=true;
+      });
+      const a=document.activeElement;
+      if(changed&&!writing&&!(a&&(a.id==="journal"||a.id==="pName"))){saveLocal();renderAll();}
+    },()=>{});
+  }catch(e){}
+}
+
+/* ================= helpers ================= */
+const $=id=>document.getElementById(id);
+function el(tag,cls,html){const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;}
+function buzz(){try{navigator.vibrate&&navigator.vibrate(8);}catch(e){}}
+let toastT=null;
+function toast(msg){
+  document.querySelectorAll(".toast").forEach(t=>t.remove());
+  const t=el("div","toast");t.textContent=msg;t.setAttribute("role","status");document.body.appendChild(t);
+  clearTimeout(toastT);toastT=setTimeout(()=>t.remove(),2400);
+}
+function fmt(n){return Number(n).toLocaleString("ru-RU");}
+function dayOfYear(d){return Math.floor((d-new Date(d.getFullYear(),0,0))/864e5);}
+
+/* ================= TODAY ================= */
+function renderHero(){
+  const d=parse(sel),t=todayKey(),now=new Date();
+  const diff=Math.round((d-parse(t))/864e5);
+  const hr=now.getHours();
+  const g=hr<5?"Қайырлы түн":hr<12?"Қайырлы таң":hr<18?"Қайырлы күн":"Қайырлы кеш";
+  const name=state.profile.name.trim();
+  $("greet").textContent=diff===0?(g+(name?", "+name:"")):diff===-1?"Кеше":diff===1?"Ертең":WD_FULL[d.getDay()];
+  $("date").textContent=(Math.abs(diff)<=1?WD_FULL[d.getDay()]+", ":"")+d.getDate()+" "+MONTHS[d.getMonth()];
+  $("backToday").hidden=diff===0;
+  const p=pct(sel);
+  $("ringNum").textContent=p+"%";
+  $("ringBar").style.strokeDashoffset=263.9*(1-p/100);
+  const dd=day(sel);
+  $("hsHabits").textContent=state.habits.filter(h=>isDone(h,dd)).length+"/"+state.habits.length;
+  $("hsTasks").textContent=dd.t.filter(x=>x.done).length+"/"+dd.t.length;
+  $("hsFocus").textContent=fmt(Math.round(dd.f));
+  const q=QUOTES[dayOfYear(d)%QUOTES.length];
+  $("quote").innerHTML="";$("quote").append("«"+q[0]+"»");const c=el("cite");c.textContent=q[1];$("quote").append(c);
+}
+function renderWeek(){
+  const d=parse(sel);const off=(d.getDay()+6)%7;const mon=new Date(d);mon.setDate(d.getDate()-off);
+  const w=$("week");w.innerHTML="";const t=todayKey();
+  for(let i=0;i<7;i++){
+    const x=new Date(mon);x.setDate(mon.getDate()+i);const k=key(x);const p=pct(k);
+    const b=el("button","wd"+(k===sel?" sel":"")+(k===t?" today":""),
+      '<span class="w">'+WD_SHORT[i]+'</span><span class="n">'+x.getDate()+'</span><span class="pb"><i style="width:'+p+'%"></i></span>');
+    b.setAttribute("aria-label",x.getDate()+" "+MONTHS[x.getMonth()]+", "+p+"%");
+    if(k===sel)b.setAttribute("aria-current","date");
+    b.onclick=()=>select(k);w.appendChild(b);
+  }
+}
+function renderHabits(){
+  const d=day(sel),w=$("habits");w.innerHTML="";
+  state.habits.forEach(h=>{
+    const v=d.h[h.id]||0,done=isDone(h,d),s=streak(h,sel);
+    const b=el("div","hb"+(done?" done":""));b.style.setProperty("--hc",h.color);
+    const top='<div class="hb-top"><span class="ic">'+ic(h.icon)+'</span>'+(s>1?'<span class="streak" title="Қатарынан күндер">'+ic("flame",1)+s+'</span>':'')+'</div><span class="nm"></span>';
+    if(h.goal){
+      b.innerHTML=top+'<div class="meter"><i style="width:'+Math.min(v/h.goal*100,100)+'%"></i></div>'+
+        '<div class="hb-bot"><span class="val"><b>'+fmt(v)+'</b> / '+fmt(h.goal)+' <span class="u"></span></span>'+
+        '<span class="pm"><button aria-label="Азайту">'+ic("minus")+'</button><button class="plus" aria-label="Көбейту">'+ic("plus")+'</button></span></div>';
+      b.querySelector(".u").textContent=h.unit;
+      const [mi,pl]=b.querySelectorAll(".pm button");
+      mi.onclick=()=>bump(h,-1);pl.onclick=()=>bump(h,1);
+    }else{
+      b.innerHTML=top+'<div class="hb-bot"><span class="val">'+(done?"Орындалды":"Белгілеу")+'</span><span class="chk">'+ic("check")+'</span></div>';
+      b.setAttribute("role","button");b.tabIndex=0;b.setAttribute("aria-pressed",done);
+      const tog=()=>{const x=dayW(sel);x.h[h.id]=x.h[h.id]?0:1;buzz();changed();};
+      b.onclick=tog;
+      b.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();tog();}};
+    }
+    b.querySelector(".nm").textContent=h.name;
+    w.appendChild(b);
+  });
+  const add=el("button","hb add",'<span class="ic">'+ic("plus")+'</span>Әдет қосу');
+  add.onclick=()=>openHabitSheet(null);w.appendChild(add);
+  $("habitMeta").textContent=state.habits.filter(h=>isDone(h,d)).length+" / "+state.habits.length;
+}
+function bump(h,dir){const x=dayW(sel);x.h[h.id]=Math.max(0,(x.h[h.id]||0)+dir*(h.step||1));buzz();changed();}
+function renderTasks(){
+  const d=day(sel),w=$("tasks");w.innerHTML="";
+  if(!d.t.length){const e=el("div","empty");e.textContent="Әзірге іс жоқ. Жұлдызшамен ең маңыздысын белгілеңіз.";w.appendChild(e);}
+  const order=d.t.map((t,i)=>[t,i]).sort((a,b)=>(a[0].done-b[0].done)||(b[0].star-a[0].star)||(a[1]-b[1]));
+  order.forEach(([t])=>{
+    const r=el("div","task"+(t.done?" done":"")+(t.star?" pri":""),
+      '<button class="cb" aria-label="Орындалды деп белгілеу">'+ic("check")+'</button><span class="tx"></span>'+
+      '<button class="star" aria-label="Маңызды">'+ic("star")+'</button><button class="x" aria-label="Жою">'+ic("x")+'</button>');
+    r.querySelector(".tx").textContent=t.text;
+    r.querySelector(".cb").setAttribute("aria-pressed",t.done);
+    r.querySelector(".cb").onclick=()=>{t.done=!t.done;buzz();changed();};
+    r.querySelector(".star").onclick=()=>{t.star=!t.star;changed();};
+    r.querySelector(".x").onclick=()=>{const x=dayW(sel);x.t=x.t.filter(q=>q!==t);changed();};
+    w.appendChild(r);
+  });
+  $("taskMeta").textContent=d.t.length?d.t.filter(t=>t.done).length+" / "+d.t.length:"";
+}
+function renderMood(){
+  const d=day(sel),w=$("moods");w.innerHTML="";
+  MOODS.forEach((m,i)=>{
+    const b=el("button","md"+(d.m===i?" on":""),'<span class="e">'+m[0]+'</span><span class="l">'+m[1]+'</span>');
+    b.setAttribute("aria-pressed",d.m===i);
+    b.onclick=()=>{const x=dayW(sel);x.m=x.m===i?-1:i;buzz();touch(sel);renderMood();};
+    w.appendChild(b);
+  });
+}
+function renderJournal(){const j=$("journal");if(document.activeElement!==j)j.value=day(sel).j||"";}
+function renderToday(){renderHero();renderWeek();renderHabits();renderTasks();}
+function changed(){
+  touch(sel);renderToday();
+  const p=pct(sel);if(p===100&&lastPct<100)celebrate();lastPct=p;
+}
+function select(k){sel=k;lastPct=pct(k);renderToday();renderMood();renderJournal();}
+
+/* ================= FOCUS ================= */
+const T={mode:"focus",dur:25*60,left:25*60,end:null,focusDur:25*60};
+try{const u=JSON.parse(localStorage.getItem(LS_UI)||"{}");if(u.T)Object.assign(T,u.T);if(u.tab)tab=u.tab;}catch(e){}
+function saveUI(){try{localStorage.setItem(LS_UI,JSON.stringify({T,tab}));}catch(e){}}
+let tick=null,audio=null,wake=null;
+function remaining(){return T.end?Math.max(0,Math.round((T.end-Date.now())/1000)):T.left;}
+function renderFocus(){
+  const r=remaining();
+  $("tNum").textContent=pad(Math.floor(r/60))+":"+pad(r%60);
+  $("tBar").style.strokeDashoffset=552.9*(1-r/T.dur);
+  $("tLabel").textContent=T.end?(T.mode==="focus"?"Назар аударыңыз":"Демалыңыз"):(r<T.dur?"Кідіртілді":"Дайын");
+  $("tPlay").innerHTML=ic(T.end?"pause":"play",!T.end);
+  $("tPlay").setAttribute("aria-label",T.end?"Кідірту":"Бастау");
+  document.querySelectorAll("#modeSeg button").forEach(b=>b.classList.toggle("on",b.dataset.mode===T.mode));
+  const pr=$("presets");pr.innerHTML="";
+  (T.mode==="focus"?[15,25,50]:[5,10,15]).forEach(m=>{
+    const b=el("button",T.dur===m*60?"on":"",m+" мин");
+    b.onclick=()=>{if(T.end)return;T.dur=m*60;T.left=T.dur;if(T.mode==="focus")T.focusDur=T.dur;saveUI();renderFocus();};
+    pr.appendChild(b);
+  });
+  const td=day(todayKey());
+  $("focusMeta").textContent="Бүгін: "+fmt(Math.round(td.f))+" мин";
+  const s=$("sessions");s.innerHTML="";for(let i=0;i<Math.max(4,td.fs);i++)s.appendChild(el("i",i<td.fs?"on":""));
+  const sel2=$("focusTask");const cur=sel2.value;sel2.innerHTML="";
+  const o0=el("option");o0.value="";o0.textContent="Жалпы жұмыс";sel2.appendChild(o0);
+  td.t.filter(t=>!t.done).forEach(t=>{const o=el("option");o.value=t.text;o.textContent=(t.star?"★ ":"")+t.text;sel2.appendChild(o);});
+  sel2.value=[...sel2.options].some(o=>o.value===cur)?cur:"";
+}
+function startTick(){clearInterval(tick);tick=setInterval(()=>{if(remaining()<=0)finish();else if(tab==="vFocus")renderFocus();},250);}
+function setMode(m){T.mode=m;T.dur=m==="focus"?(T.focusDur||25*60):5*60;T.left=T.dur;T.end=null;clearInterval(tick);saveUI();renderFocus();}
+function finish(){
+  clearInterval(tick);
+  const wasFocus=T.mode==="focus";const mins=T.dur/60;
+  T.end=null;
+  if(wasFocus){const d=dayW(todayKey());d.f=(d.f||0)+mins;d.fs=(d.fs||0)+1;touch(todayKey());}
+  chime();try{navigator.vibrate&&navigator.vibrate([120,80,120]);}catch(e){}
+  releaseWake();
+  setMode(wasFocus?"break":"focus");
+  toast(wasFocus?"Жарайсыз! "+mins+" минут жазылды. Енді үзіліс.":"Үзіліс бітті. Жұмысқа оралайық.");
+  if(sel===todayKey())renderToday();
+}
+function chime(){
+  if(!audio)return;
+  try{[660,880,1040].forEach((f,i)=>{const o=audio.createOscillator(),g=audio.createGain();o.frequency.value=f;o.type="sine";
+    const t0=audio.currentTime+i*.18;g.gain.setValueAtTime(0,t0);g.gain.linearRampToValueAtTime(.2,t0+.02);g.gain.exponentialRampToValueAtTime(.001,t0+.5);
+    o.connect(g).connect(audio.destination);o.start(t0);o.stop(t0+.55);});}catch(e){}
+}
+async function holdWake(){try{if(navigator.wakeLock)wake=await navigator.wakeLock.request("screen");}catch(e){}}
+function releaseWake(){try{wake&&wake.release();}catch(e){}wake=null;}
+$("tPlay").onclick=()=>{
+  if(!audio){try{audio=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
+  if(T.end){T.left=remaining();T.end=null;clearInterval(tick);releaseWake();}
+  else{T.end=Date.now()+remaining()*1000;startTick();holdWake();}
+  buzz();saveUI();renderFocus();
+};
+$("tReset").innerHTML=ic("reset");$("tSkip").innerHTML=ic("skip");
+$("tReset").onclick=()=>{T.end=null;T.left=T.dur;clearInterval(tick);releaseWake();saveUI();renderFocus();};
+$("tSkip").onclick=()=>{releaseWake();setMode(T.mode==="focus"?"break":"focus");};
+document.querySelectorAll("#modeSeg button").forEach(b=>b.onclick=()=>{if(T.mode!==b.dataset.mode)setMode(b.dataset.mode);});
+
+/* ================= STATS ================= */
+function lastKeys(n){const out=[];let k=todayKey();for(let i=0;i<n;i++){out.unshift(k);k=addDays(k,-1);}return out;}
+function renderStats(){
+  const k30=lastKeys(30),tracked=k30.filter(k=>hasData(state.days[k]));
+  const avg=tracked.length?Math.round(tracked.reduce((a,k)=>a+pct(k),0)/tracked.length):0;
+  let run=0,k=todayKey();if(pct(k)<60)k=addDays(k,-1);while(run<999&&pct(k)>=60){run++;k=addDays(k,-1);}
+  const perfect=k30.filter(k=>pct(k)===100).length;
+  const focus=k30.reduce((a,k)=>a+(day(k).f||0),0);
+  $("kpis").innerHTML="";
+  [["Орташа орындалу",avg,"%"],["Серия (60%+)",run,"күн"],["Мінсіз күндер",perfect,"күн"],["Фокус уақыты",Math.round(focus/60*10)/10,"сағ"]].forEach(([l,v,u])=>{
+    $("kpis").appendChild(el("div","card kpi","<span>"+l+"</span><b>"+fmt(v)+"<small>"+u+"</small></b>"));
+  });
+  // bar chart
+  const k14=lastKeys(14),W=320,H=150,L=26,B=20,T0=8,cw=(W-L-4)/14,bw=cw*.62;
+  const y=v=>T0+(H-T0-B)*(1-v/100);
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Соңғы 14 күннің орындалу пайызы">';
+  [0,50,100].forEach(v=>{s+='<line class="grid" x1="'+L+'" x2="'+(W-2)+'" y1="'+y(v)+'" y2="'+y(v)+'"/><text class="axis" x="'+(L-5)+'" y="'+(y(v)+3)+'" text-anchor="end">'+v+'</text>';});
+  k14.forEach((kk,i)=>{
+    const p=pct(kk),x=L+i*cw+(cw-bw)/2,isT=kk===todayKey();
+    const h=Math.max(p?2:0,(H-T0-B)*p/100);
+    s+='<rect x="'+x.toFixed(1)+'" y="'+(y(0)-h).toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+h.toFixed(1)+'" rx="3" fill="'+(isT?"url(#sunGrad)":"var(--accent)")+'" fill-opacity="'+(isT?1:.55)+'"><title>'+parse(kk).getDate()+" "+MONTHS[parse(kk).getMonth()]+": "+p+'%</title></rect>';
+    if(i%2===1||isT)s+='<text class="axis" x="'+(x+bw/2).toFixed(1)+'" y="'+(H-6)+'" text-anchor="middle"'+(isT?' style="fill:var(--ink);font-weight:700"':'')+'>'+parse(kk).getDate()+'</text>';
+  });
+  $("chart").innerHTML=s+"</svg>";
+  // habit rates
+  const denom=Math.max(tracked.length,1);
+  const rates=state.habits.map(h=>({h,r:Math.round(tracked.filter(kk=>isDone(h,day(kk))).length/denom*100),s:streak(h,todayKey())})).sort((a,b)=>b.r-a.r);
+  const rw=$("rates");rw.innerHTML="";
+  if(!tracked.length){const e=el("div","empty");e.textContent="Бірнеше күн белгілегеннен кейін мұнда әр әдеттің тұрақтылығы көрінеді.";rw.appendChild(e);}
+  else rates.forEach(({h,r,s:st})=>{
+    const row=el("div","rate",'<span class="ic">'+ic(h.icon)+'</span><div style="min-width:0"><div class="nm"></div><div class="bar"><i style="width:'+r+'%"></i></div></div><span class="pc">'+r+'%'+(st>1?' <span class="streak">'+ic("flame",1)+st+'</span>':'')+'</span>');
+    row.style.setProperty("--hc",h.color);row.querySelector(".nm").textContent=h.name;rw.appendChild(row);
+  });
+  // mood line
+  const ml=$("moodline");ml.innerHTML="";
+  k14.forEach(kk=>{const m=day(kk).m;ml.appendChild(el("div","",'<span class="e">'+(m>=0?MOODS[m][0]:"·")+'</span>'+parse(kk).getDate()));});
+  renderCal();
+}
+function renderCal(){
+  const [yy,mm]=calMonth.split("-").map(Number);
+  $("calTitle").textContent=MONTHS[mm-1].replace(/^./,c=>c.toUpperCase())+" "+yy;
+  const g=$("cal");g.innerHTML="";
+  WD_SHORT.forEach(s=>g.appendChild(el("div","h",s)));
+  const first=new Date(yy,mm-1,1),off=(first.getDay()+6)%7,n=new Date(yy,mm,0).getDate(),t=todayKey();
+  for(let i=0;i<off;i++)g.appendChild(el("div","cd pad"));
+  for(let i=1;i<=n;i++){
+    const kk=yy+"-"+pad(mm)+"-"+pad(i),p=pct(kk);
+    const b=el("button","cd"+(p>=75?" l3":p>=40?" l2":p>0?" l1":"")+(kk===t?" today":""),String(i));
+    b.setAttribute("aria-label",i+" "+MONTHS[mm-1]+", "+p+"%");
+    b.onclick=()=>{select(kk);showTab("vToday");};g.appendChild(b);
+  }
+}
+
+/* ================= SETTINGS ================= */
+function renderSettings(){
+  const pn=$("pName");if(document.activeElement!==pn)pn.value=state.profile.name;
+  const l=$("habitList");l.innerHTML="";
+  state.habits.forEach((h,i)=>{
+    const r=el("div","li",'<span class="ic">'+ic(h.icon)+'</span><div class="txt"><b></b><span></span></div>'+
+      '<button class="mini" aria-label="Жоғары"'+(i===0?" disabled":"")+'>'+ic("up")+'</button>'+
+      '<button class="mini" aria-label="Төмен"'+(i===state.habits.length-1?" disabled":"")+'>'+ic("down")+'</button>'+
+      '<button class="mini" aria-label="Өңдеу">'+ic("edit")+'</button>');
+    r.style.setProperty("--hc",h.color);
+    r.querySelector("b").textContent=h.name;
+    r.querySelector(".txt span").textContent=h.goal?"Мақсат: "+fmt(h.goal)+" "+h.unit+" · қадам "+fmt(h.step):"Белгі (иә/жоқ)";
+    const [u,d,e]=r.querySelectorAll(".mini");
+    u.onclick=()=>move(i,-1);d.onclick=()=>move(i,1);e.onclick=()=>openHabitSheet(h);
+    l.appendChild(r);
+  });
+  if(!state.habits.length){const e=el("div","empty");e.textContent="Әдет жоқ. «+ Жаңа әдет» арқылы қосыңыз.";l.appendChild(e);}
+}
+function move(i,dir){const a=state.habits;const j=i+dir;if(j<0||j>=a.length)return;[a[i],a[j]]=[a[j],a[i]];touchCfg();renderSettings();}
+let pnT=null;
+$("pName").oninput=e=>{clearTimeout(pnT);const v=e.target.value.trim();pnT=setTimeout(()=>{state.profile.name=v;touchCfg();renderHero();},500);};
+$("addHabit2").onclick=()=>openHabitSheet(null);
+
+function openHabitSheet(h){
+  const isNew=!h;
+  const f=h?clone(h):{id:"h"+Date.now().toString(36),name:"",icon:"star",goal:0,unit:"",step:1,color:COLORS[state.habits.length%COLORS.length]};
+  const host=$("sheetHost");
+  host.innerHTML='<div class="scrim" id="scrim"><form class="sheet" id="hSheet" role="dialog" aria-modal="true" aria-labelledby="hTitle">'+
+    '<div class="grab"></div><h3 id="hTitle">'+(isNew?"Жаңа әдет":"Әдетті өңдеу")+'</h3>'+
+    '<label>Атауы<input id="fName" maxlength="40" required placeholder="Мысалы: Ағылшын тілі"></label>'+
+    '<div class="seg" id="fType"><button type="button" data-t="0">Белгі</button><button type="button" data-t="1">Сан мақсаты</button></div>'+
+    '<div class="two" id="fNums"><label>Мақсат<input id="fGoal" type="number" min="1" max="1000000" inputmode="numeric"></label><label>Бірлік<input id="fUnit" maxlength="12" placeholder="бет, мин, км"></label><label>Бір басуда<input id="fStep" type="number" min="1" max="100000" inputmode="numeric"></label></div>'+
+    '<label>Түсі</label><div class="swatches" id="fColors"></div>'+
+    '<label>Белгіше</label><div class="icons" id="fIcons"></div>'+
+    '<button class="btn accent" type="submit">'+(isNew?"Қосу":"Сақтау")+'</button>'+
+    (isNew?'':'<div id="delWrap"><button class="btn danger" type="button" id="fDel" style="width:100%">Әдетті жою</button></div>')+
+    '<button class="btn ghost" type="button" id="fCancel">Болдырмау</button></form></div>';
+  const sheet=$("hSheet");sheet.style.setProperty("--hc",f.color);
+  $("fName").value=f.name;$("fGoal").value=f.goal||"";$("fUnit").value=f.unit;$("fStep").value=f.step||1;
+  let numeric=!!f.goal;
+  const syncType=()=>{$("fNums").hidden=!numeric;document.querySelectorAll("#fType button").forEach(b=>b.classList.toggle("on",(b.dataset.t==="1")===numeric));};
+  document.querySelectorAll("#fType button").forEach(b=>b.onclick=()=>{numeric=b.dataset.t==="1";syncType();if(numeric&&!$("fGoal").value)$("fGoal").focus();});
+  syncType();
+  const drawC=()=>{const c=$("fColors");c.innerHTML="";COLORS.forEach(col=>{const b=el("button","sw"+(col===f.color?" on":""));b.type="button";b.style.setProperty("--c",col);b.setAttribute("aria-label","Түс "+col);b.onclick=()=>{f.color=col;sheet.style.setProperty("--hc",col);drawC();};c.appendChild(b);});};
+  const drawI=()=>{const c=$("fIcons");c.innerHTML="";HABIT_ICONS.forEach(n=>{const b=el("button",n===f.icon?"on":"",ic(n));b.type="button";b.setAttribute("aria-label",n);b.onclick=()=>{f.icon=n;drawI();};c.appendChild(b);});};
+  drawC();drawI();
+  const close=()=>{host.innerHTML="";};
+  $("scrim").onclick=e=>{if(e.target.id==="scrim")close();};
+  $("fCancel").onclick=close;
+  document.addEventListener("keydown",function esc(e){if(e.key==="Escape"){close();document.removeEventListener("keydown",esc);}});
+  if(!isNew)$("fDel").onclick=()=>{
+    $("delWrap").innerHTML='<div class="confirm"><span class="note">«'+"</span>"+'<div class="row-btns"><button class="btn danger" type="button" id="fDelYes">Иә, жою</button><button class="btn ghost" type="button" id="fDelNo">Жоқ</button></div></div>';
+    $("delWrap").querySelector(".note").textContent="«"+f.name+"» әдеті жойылады. Өткен күндердегі белгілері статистикадан кетеді.";
+    $("fDelNo").onclick=()=>openHabitSheet(h);
+    $("fDelYes").onclick=()=>{state.habits=state.habits.filter(x=>x.id!==h.id);touchCfg();close();renderAll();toast("Әдет жойылды");};
+  };
+  sheet.onsubmit=e=>{
+    e.preventDefault();
+    f.name=$("fName").value.trim();if(!f.name)return;
+    if(numeric){f.goal=Math.max(1,parseInt($("fGoal").value,10)||1);f.unit=$("fUnit").value.trim();f.step=Math.max(1,parseInt($("fStep").value,10)||1);}
+    else{f.goal=0;f.unit="";f.step=1;}
+    if(isNew)state.habits.push(f);else{const i=state.habits.findIndex(x=>x.id===h.id);if(i>=0)state.habits[i]=f;}
+    touchCfg();close();renderAll();toast(isNew?"Әдет қосылды":"Сақталды");
+  };
+  setTimeout(()=>{if(isNew)$("fName").focus();},50);
+}
+
+$("exportBtn").onclick=async()=>{
+  const data=JSON.stringify({app:"kundik",exported:new Date().toISOString(),...state},null,2);
+  const name="kundik-"+todayKey()+".json";
+  if(downloads){
+    try{await downloads.save({filename:name,data});toast("Көшірме сақталды");return;}
+    catch(e){if(e&&e.code==="declined")return;}
+  }
+  if(STANDALONE){
+    try{
+      const file=new File([data],name,{type:"application/json"});
+      if(navigator.canShare&&navigator.canShare({files:[file]})){await navigator.share({files:[file],title:"Күндік көшірмесі"});return;}
+    }catch(e){if(e&&e.name==="AbortError")return;}
+    const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:"application/json"}));a.download=name;
+    document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},1000);
+    toast("Көшірме жүктелді");return;
+  }
+  try{await navigator.clipboard.writeText(data);toast("Көшірме буферге көшірілді. Оны блокнотқа сақтап қойыңыз.");}
+  catch(e){toast("Бұл құрылғыда көшірме алу мүмкін болмады.");}
+};
+$("importBtn").onclick=()=>$("importFile").click();
+$("importFile").onchange=e=>{
+  const file=e.target.files&&e.target.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=()=>{
+    try{
+      const s=JSON.parse(r.result);if(!s||!s.habits||!s.days)throw 0;
+      state=migrate(s);saveLocal();cfgDirty=true;
+      new Set(Object.keys(state.days).map(k=>k.slice(0,7))).forEach(m=>dirty.add(m));schedule();
+      renderAll();toast("Деректер қалпына келтірілді");
+    }catch(err){toast("Файл танылмады. Күндік көшірмесі (.json) екенін тексеріңіз.");}
+    e.target.value="";
+  };
+  r.readAsText(file);
+};
+function bindReset(){
+  const w=$("resetWrap");
+  w.innerHTML='<button class="btn danger" id="resetBtn" style="width:100%">Барлық деректерді өшіру</button>';
+  $("resetBtn").onclick=()=>{
+    w.innerHTML='<div class="confirm"><span class="note">Барлық күндер, істер және күнделік жазбалары өшеді. Әдеттер тізімі сақталады. Алдымен сақтық көшірме алуды ұсынамыз.</span><div class="row-btns"><button class="btn danger" id="rYes">Иә, өшіру</button><button class="btn ghost" id="rNo">Болдырмау</button></div></div>';
+    $("rNo").onclick=bindReset;
+    $("rYes").onclick=()=>{
+      const months=new Set(Object.keys(state.days).map(k=>k.slice(0,7)));
+      state.days={};saveLocal();months.forEach(m=>dirty.add(m));schedule();
+      bindReset();renderAll();toast("Деректер өшірілді");
+    };
+  };
+}
+bindReset();
+
+/* ================= confetti ================= */
+function celebrate(){
+  toast("Керемет! Бүгінгі жоспар 100% орындалды");
+  if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;
+  const c=$("confetti");c.hidden=false;const ctx=c.getContext("2d");
+  const dpr=window.devicePixelRatio||1;c.width=innerWidth*dpr;c.height=innerHeight*dpr;ctx.scale(dpr,dpr);
+  const cols=["#F6B23C","#EC5B3E","#3C7BE0","#1FA88B","#D85BA8","#7C5CD6"];
+  const ps=Array.from({length:140},()=>({x:innerWidth/2,y:innerHeight*.28,vx:(Math.random()-.5)*12,vy:Math.random()*-11-3,r:Math.random()*6+4,c:cols[Math.floor(Math.random()*cols.length)],a:Math.random()*6,va:(Math.random()-.5)*.4}));
+  const t0=performance.now();
+  (function f(t){
+    ctx.clearRect(0,0,innerWidth,innerHeight);
+    ps.forEach(p=>{p.vy+=.32;p.vx*=.99;p.x+=p.vx;p.y+=p.vy;p.a+=p.va;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/4,p.r,p.r/2);ctx.restore();});
+    if(t-t0<2200)requestAnimationFrame(f);else{ctx.clearRect(0,0,innerWidth,innerHeight);c.hidden=true;}
+  })(t0);
+}
+
+/* ================= tabs & wiring ================= */
+function showTab(id){
+  tab=id;saveUI();
+  ["vToday","vFocus","vStats","vSettings"].forEach(v=>$(v).hidden=v!==id);
+  document.querySelectorAll(".tab").forEach(b=>{b.classList.toggle("on",b.dataset.tab===id);b.setAttribute("aria-current",b.dataset.tab===id?"page":"false");});
+  if(id==="vFocus")renderFocus();if(id==="vStats")renderStats();if(id==="vSettings")renderSettings();if(id==="vToday")renderToday();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll("[data-i]").forEach(s=>s.outerHTML=ic(s.dataset.i));
+document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>showTab(b.dataset.tab));
+$("logoMark").innerHTML=ic("sun");$("logoMark").querySelector("svg").style.cssText="width:18px;height:18px";
+$("wkPrev").innerHTML=ic("left");$("wkNext").innerHTML=ic("right");$("mPrev").innerHTML=ic("left");$("mNext").innerHTML=ic("right");
+$("taskAddBtn").innerHTML=ic("plus");$("taskAddBtn").querySelector("svg").style.cssText="width:20px;height:20px";
+$("wkPrev").onclick=()=>select(addDays(sel,-7));
+$("wkNext").onclick=()=>select(addDays(sel,7));
+$("backToday").onclick=()=>select(todayKey());
+$("mPrev").onclick=()=>{const[y,m]=calMonth.split("-").map(Number);calMonth=key(new Date(y,m-2,1)).slice(0,7);renderCal();};
+$("mNext").onclick=()=>{const[y,m]=calMonth.split("-").map(Number);calMonth=key(new Date(y,m,1)).slice(0,7);renderCal();};
+$("taskForm").onsubmit=e=>{e.preventDefault();const v=$("taskInput").value.trim();if(!v)return;dayW(sel).t.push({text:v,done:false,star:false});$("taskInput").value="";changed();};
+let jt=null;
+$("journal").oninput=e=>{const v=e.target.value,k=sel;clearTimeout(jt);jt=setTimeout(()=>{dayW(k).j=v;touch(k);},600);};
+document.addEventListener("visibilitychange",()=>{
+  if(document.hidden)return;
+  if(T.end){if(remaining()<=0)finish();else startTick();}
+  if(sel!==todayKey()&&!hasData(state.days[sel]))select(todayKey());
+});
+
+function renderAll(){
+  renderToday();renderMood();renderJournal();
+  if(tab==="vFocus")renderFocus();if(tab==="vStats")renderStats();if(tab==="vSettings")renderSettings();
+}
+lastPct=pct(sel);
+showTab(tab);
+renderMood();renderJournal();
+if(T.end){if(remaining()<=0)finish();else startTick();}
+if(STANDALONE){
+  $("sync").textContent="Телефонда";
+  $("dataNote").textContent="Деректер тек осы телефонда сақталады. Айына бір рет сақтық көшірме алып, файлды бұлтқа (Drive, iCloud) салып қойыңыз.";
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(e){}
+  if("serviceWorker" in navigator&&location.protocol!=="file:")navigator.serviceWorker.register("sw.js").catch(()=>{});
+}else connect();
+})();
+</script>
+
+</body>
+</html>
